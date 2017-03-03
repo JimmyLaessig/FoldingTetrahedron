@@ -69,17 +69,17 @@ public class FoldableTriangle
             vertices.Add(t2.p1);
             vertices.Add(t2.p2);
 
-            //vertices.Add(center0.p0);
-            //vertices.Add(center0.p1);
-            //vertices.Add(center0.p2);
+            vertices.Add(center0.p0);
+            vertices.Add(center0.p1);
+            vertices.Add(center0.p2);
 
-            //vertices.Add(center1.p0);
-            //vertices.Add(center1.p1);
-            //vertices.Add(center1.p2);
+            vertices.Add(center1.p0);
+            vertices.Add(center1.p1);
+            vertices.Add(center1.p2);
 
-            //vertices.Add(center2.p0);
-            //vertices.Add(center2.p1);
-            //vertices.Add(center2.p2);
+            vertices.Add(center2.p0);
+            vertices.Add(center2.p1);
+            vertices.Add(center2.p2);
 
             return vertices.ToArray();
         }
@@ -122,17 +122,17 @@ public class FoldableTriangle
             colors.Add(t2.color);
             colors.Add(t2.color);
 
-            //colors.Add(center0.color);
-            //colors.Add(center0.color);
-            //colors.Add(center0.color);
-                               
-            //colors.Add(center1.color);
-            //colors.Add(center1.color);
-            //colors.Add(center1.color);
-                               
-            //colors.Add(center2.color);
-            //colors.Add(center2.color);
-            //colors.Add(center2.color);
+            colors.Add(center0.color);
+            colors.Add(center0.color);
+            colors.Add(center0.color);
+
+            colors.Add(center1.color);
+            colors.Add(center1.color);
+            colors.Add(center1.color);
+
+            colors.Add(center2.color);
+            colors.Add(center2.color);
+            colors.Add(center2.color);
 
             return colors.ToArray();
         }                
