@@ -110,16 +110,16 @@ public class SierpinskiTetrahedron : MonoBehaviour
     
 
 
-    private float animationTimeStep     = 1.0f;
-    private float animationTimeCounter  = 0.0f;
+    
+    private float animationProgress = 0.0f;
 
 
     // Update is called once per frame
     void Update()
     {
-        if (animationTimeCounter >= animationTimeStep)
+        if (animationProgress >= 1.0f)
         {
-            animationTimeCounter -= animationTimeStep;
+            animationProgress = 0.0f;
             if (numSubDivisions >= 8)
             {
                 if (isLooping)
@@ -130,8 +130,13 @@ public class SierpinskiTetrahedron : MonoBehaviour
                 subdivide();
             }
         }
-        animationTimeCounter += Time.deltaTime * animationSpeed;
 
+        animationProgress +=  Time.deltaTime * animationSpeed;
+
+        float angle = animationProgress * (-109.5f) * Mathf.Deg2Rad;
+
+        material.SetFloat("cosPhi", Mathf.Cos(angle));
+        material.SetFloat("sinPhi", Mathf.Sin(angle));
         if (drawInstanced)
         {
             var chunks = instanceMatrices.Split(1023);
