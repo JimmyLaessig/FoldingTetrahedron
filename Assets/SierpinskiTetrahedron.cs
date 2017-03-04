@@ -137,6 +137,7 @@ public class SierpinskiTetrahedron : MonoBehaviour
 
         material.SetFloat("cosPhi", Mathf.Cos(angle));
         material.SetFloat("sinPhi", Mathf.Sin(angle));
+
         if (drawInstanced)
         {
             var chunks = instanceMatrices.Split(1023);

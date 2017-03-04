@@ -7,7 +7,7 @@ Shader "Custom/Tetrahedron"
 		{
 			Tags { "RenderType"="Opaque" }
 			LOD 200
-			//Cull off
+			Cull off
 			CGPROGRAM
 				#pragma target 5.0
 				#pragma vertex VS_Main
@@ -61,7 +61,7 @@ Shader "Custom/Tetrahedron"
 
 				uniform float cosPhi;
 				uniform float sinPhi; 
-
+				uniform float animationProgress;
 
 				float3 RotatePointAround(float3 axisPoint0, float3 axisPoint1, float3 p, float cosPhi, float sinPhi)
 				{
@@ -113,6 +113,8 @@ Shader "Custom/Tetrahedron"
 					float3 p12 = (p11 + p22)/2.0f;
 					float3 p20 = (p00 + p22)/2.0f;	
 
+					float3 s = (p00 + p11 + p22) / 3.0f;
+
 					// Calculate Normal
 					
 
@@ -158,7 +160,7 @@ Shader "Custom/Tetrahedron"
 					// Face 1		
 					float3 p0_out	= p01;
 					float3 p1_out	= p12;
-					float3 p2_out	= RotatePointAround(p01, p12, p20, cosPhi, sinPhi);
+					float3 p2_out	= RotatePointAround(p01, p12, s, cosPhi, sinPhi);
 					float3 n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));					
 								
 					output.normal = n_out;																						   
@@ -173,7 +175,7 @@ Shader "Custom/Tetrahedron"
 
 					// Face 2
 					p0_out	= p01;
-					p1_out	= RotatePointAround(p20, p01, p12, cosPhi, sinPhi);
+					p1_out	= RotatePointAround(p20, p01, s, cosPhi, sinPhi);
 					p2_out	= p20;
 					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));
 
@@ -187,7 +189,7 @@ Shader "Custom/Tetrahedron"
 					vertices.RestartStrip();	
 					
 					// Face3	
-					p0_out	= RotatePointAround(p12, p20, p01, cosPhi, sinPhi);;
+					p0_out	= RotatePointAround(p12, p20, s, cosPhi, sinPhi);;
 					p1_out	= p12;
 					p2_out	= p20;
 					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));
