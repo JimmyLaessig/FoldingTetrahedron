@@ -1,6 +1,11 @@
 ﻿
 Shader "Custom/Tetrahedron" 
 {
+	Properties
+	{
+	_color("color", Color) = (1, 0, 0, 1)
+	_animatedColor("animatedColor", Color) = (0, 1, 0, 1)
+	}
 	SubShader 
 	{
 		Pass
@@ -63,6 +68,9 @@ Shader "Custom/Tetrahedron"
 				uniform float sinPhi; 
 				uniform float animationProgress;
 
+				float4 _color;
+				float4 _animatedColor;
+
 				float3 RotatePointAround(float3 axisPoint0, float3 axisPoint1, float3 p, float cosPhi, float sinPhi)
 				{
 					float3 pointOnAxis		= (axisPoint0 + axisPoint1) /2;
@@ -98,6 +106,8 @@ Shader "Custom/Tetrahedron"
 				}
 
 
+
+
 				// Geometry Shader -----------------------------------------------------
 				[maxvertexcount(18)]
 				void GS_Main(triangle GS_INPUT input[3], inout TriangleStream<FS_INPUT> vertices)
@@ -113,10 +123,7 @@ Shader "Custom/Tetrahedron"
 					float3 p12 = (p11 + p22)/2.0f;
 					float3 p20 = (p00 + p22)/2.0f;	
 
-					float3 s = (p00 + p11 + p22) / 3.0f;
-
-					// Calculate Normal
-					
+					float3 s = (p00 + p11 + p22) / 3.0f;					
 
 
 					FS_INPUT output	= (FS_INPUT)0;
@@ -124,7 +131,7 @@ Shader "Custom/Tetrahedron"
 
 					// Normal and color for outer faces (static)
 					output.normal		= UnityObjectToWorldNormal(CalculateNormal(p00, p11, p22));
-					output.color		= float4(1, 0, 0, 1);	
+					output.color		= _color;	
 
 
 					// Face 1					
@@ -153,9 +160,12 @@ Shader "Custom/Tetrahedron"
 					output.clipPos = UnityObjectToClipPos( p22 );		
 					vertices.Append(output);			   
 					vertices.RestartStrip();			   
+								
 														   
 					// Inner faces(Animated)	
-					output.color = float4(0, 1, 0, 1);		 
+					float delay = 0.2;
+					float i = ( animationProgress < delay) ? 0 : ( animationProgress - delay)/ (1-delay);
+					output.color =  lerp(_animatedColor, _color, i);
 
 					// Face 1		
 					float3 p0_out	= p01;

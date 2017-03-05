@@ -26,7 +26,7 @@ public class Tetrahedron
 
     public Vector3 s
     {
-        get { return (p0 + p1 + p2 + p3)/ 4.0f; }
+        get { return (p0 + p1 + p2 + p3) / 4.0f; }
     }
 
     public Vector3[] Vertices

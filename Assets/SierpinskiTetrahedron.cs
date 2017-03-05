@@ -92,7 +92,7 @@ public class SierpinskiTetrahedron : MonoBehaviour
         });
 
         instances = newInstances;
-        instanceMatrices = instances.ConvertAll(p => Matrix4x4.TRS(p, Quaternion.identity, Vector3.one * scale));
+        instanceMatrices = instances.ConvertAll(p => Matrix4x4.TRS(p - tetrahedron.s, Quaternion.identity, Vector3.one * scale));
         numSubDivisions++;
     }
 
@@ -103,7 +103,7 @@ public class SierpinskiTetrahedron : MonoBehaviour
         instances.Add(Vector3.zero);
         scale = 1.0f;
         instanceMatrices.Clear();
-        instanceMatrices = instances.ConvertAll(p => Matrix4x4.TRS(p, Quaternion.identity, Vector3.one * scale));
+        instanceMatrices = instances.ConvertAll(p => Matrix4x4.TRS(p- tetrahedron.s, Quaternion.identity, Vector3.one * scale));
         numSubDivisions = 0;
 }
 
@@ -116,7 +116,9 @@ public class SierpinskiTetrahedron : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {   
+
+        // Update Animation
         if (animationProgress >= 1.0f)
         {
             animationProgress = 0.0f;
@@ -130,22 +132,26 @@ public class SierpinskiTetrahedron : MonoBehaviour
                 subdivide();
             }
         }
-
         animationProgress +=  Time.deltaTime * animationSpeed;
 
-        float angle = animationProgress * (-109.5f) * Mathf.Deg2Rad;
 
+        // Material Uniforms
+        float angle = animationProgress * (-109.5f) * Mathf.Deg2Rad;
         material.SetFloat("cosPhi", Mathf.Cos(angle));
         material.SetFloat("sinPhi", Mathf.Sin(angle));
+        material.SetFloat("animationProgress", animationProgress);
 
-        if (drawInstanced)
-        {
-            var chunks = instanceMatrices.Split(1023);
+
+        // Draw Tetrahedrons
+        var matrices = instanceMatrices.ConvertAll(m => this.transform.localToWorldMatrix * m);
+        if(drawInstanced)
+        {          
+            var chunks = matrices.Split(1023);
             chunks.ToList().ForEach(m => Graphics.DrawMeshInstanced(mesh, 0, material, m.ToArray(), m.Count()));
         }
         else
         {
-            instanceMatrices.ForEach(m => Graphics.DrawMesh(mesh, m, material, 0));
+            matrices.ForEach(m => Graphics.DrawMesh(mesh, m, material, 0));
         }
     }
 }
