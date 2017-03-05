@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public static class IEnumerableExtensions  {
+public static class Extensions  {
 
 
     public static IEnumerable<IEnumerable<T>> Split<T>(this ICollection<T> self, int chunkSize)
@@ -26,5 +26,8 @@ public static class IEnumerableExtensions  {
 
         return splitList;
     }
+
+
+
 
 }

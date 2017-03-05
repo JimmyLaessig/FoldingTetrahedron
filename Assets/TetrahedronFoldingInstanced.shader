@@ -1,5 +1,5 @@
 ﻿
-Shader "Custom/Tetrahedron" 
+Shader "Custom/TetrahedronFolding" 
 {
 	Properties
 	{
@@ -21,7 +21,7 @@ Shader "Custom/Tetrahedron"
 				#pragma multi_compile_instancing
 				#include "UnityCG.cginc" 
 				#include "UnityLightingCommon.cginc"
-				
+				#include "fun.cginc"
 
 				// **************************************************************
 				// Data structures												*
@@ -37,10 +37,12 @@ Shader "Custom/Tetrahedron"
 
 				struct FS_INPUT
 				{
+					UNITY_VERTEX_INPUT_INSTANCE_ID
 					float4 clipPos	: SV_POSITION;
 					float3 normal	: NORMAL;
 					float4 color	: COLOR;
-					UNITY_VERTEX_INPUT_INSTANCE_ID
+					bool isFrontFace: SV_IsFrontFace;
+					
 				};
 
 
@@ -67,46 +69,12 @@ Shader "Custom/Tetrahedron"
 				uniform float cosPhi;
 				uniform float sinPhi; 
 				uniform float animationProgress;
+				uniform bool animationForward;
 
 				float4 _color;
 				float4 _animatedColor;
 
-				float3 RotatePointAround(float3 axisPoint0, float3 axisPoint1, float3 p, float cosPhi, float sinPhi)
-				{
-					float3 pointOnAxis		= (axisPoint0 + axisPoint1) /2;
-					float3 rotationAxis		= normalize(axisPoint1 - axisPoint0);
-
-					float x = p.x;
-					float y = p.y;
-					float z = p.z;
-
-					float a = pointOnAxis.x;
-					float b = pointOnAxis.y;
-					float c = pointOnAxis.z;
-
-					float u = rotationAxis.x;
-					float v = rotationAxis.y;
-					float w = rotationAxis.z;
-
-
-					float x_rotated = (a * (v*v + w*w) - u * (b*v + c*w - u*x - v*y - w*z)) * (1 - cosPhi) + x * cosPhi + (-c*v + b*w - w*y + v*z) * sinPhi;
-					float y_rotated = (b * (u*u + w*w) - v * (a*u + c*w - u*x - v*y - w*z)) * (1 - cosPhi) + y * cosPhi + ( c*u - a*w + w*x - u*z) * sinPhi;
-					float z_rotated = (c * (u*u + v*v) - w * (a*u + b*v - u*x - v*y - w*z)) * (1 - cosPhi) + z * cosPhi + (-b*u + a*v - v*x + u*y) * sinPhi;
-
-					return float3(x_rotated, y_rotated, z_rotated);
-				}
-
-
-				float3 CalculateNormal(float3 p0, float3 p1, float3 p2)
-				{
-					float3 v01 = normalize(p1 - p0);
-					float3 v02 = normalize(p2 - p0);	
-					return normalize(cross(v01, v02));	
-					
-				}
-
-
-
+				
 
 				// Geometry Shader -----------------------------------------------------
 				[maxvertexcount(18)]
@@ -163,14 +131,14 @@ Shader "Custom/Tetrahedron"
 								
 														   
 					// Inner faces(Animated)	
-					float delay = 0.2;
-					float i = ( animationProgress < delay) ? 0 : ( animationProgress - delay)/ (1-delay);
-					output.color =  lerp(_animatedColor, _color, i);
+					float delay		= 0.2;
+					float i			= ( animationProgress < delay) ? 0 : ( animationProgress - delay)/ (1-delay);
+					output.color	=  lerp(_color, _animatedColor, i);
 
 					// Face 1		
 					float3 p0_out	= p01;
 					float3 p1_out	= p12;
-					float3 p2_out	= RotatePointAround(p01, p12, s, cosPhi, sinPhi);
+					float3 p2_out	= RotateAround(p01, p12, s, cosPhi, sinPhi);
 					float3 n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));					
 								
 					output.normal = n_out;																						   
@@ -185,7 +153,7 @@ Shader "Custom/Tetrahedron"
 
 					// Face 2
 					p0_out	= p01;
-					p1_out	= RotatePointAround(p20, p01, s, cosPhi, sinPhi);
+					p1_out	= RotateAround(p20, p01, s, cosPhi, sinPhi);
 					p2_out	= p20;
 					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));
 
@@ -199,7 +167,7 @@ Shader "Custom/Tetrahedron"
 					vertices.RestartStrip();	
 					
 					// Face3	
-					p0_out	= RotatePointAround(p12, p20, s, cosPhi, sinPhi);;
+					p0_out	= RotateAround(p12, p20, s, cosPhi, sinPhi);;
 					p1_out	= p12;
 					p2_out	= p20;
 					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));
@@ -220,14 +188,13 @@ Shader "Custom/Tetrahedron"
 				float4 FS_Main(FS_INPUT input) : SV_Target
 				{
 					UNITY_SETUP_INSTANCE_ID (input);
-
-					half nl = max(0, dot(input.normal, _WorldSpaceLightPos0.xyz));
-					// factor in the light color
 					
-					
+					float3 n = (input.isFrontFace) ? input.normal : -input.normal;
+					//float3 n = input.normal;
+					half nl = max(0, dot(n, _WorldSpaceLightPos0.xyz));										
 					return input.color * nl * _LightColor0;
-					//return float4(1, 0, 0, 1)* nl * _LightColor0;
 				}
+
 			ENDCG
 		}
 	} 

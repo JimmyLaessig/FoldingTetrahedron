@@ -40,6 +40,6 @@ public class OptionsPanel : MonoBehaviour {
         }
         counter += Time.smoothDeltaTime;
 
-        subdivisionText.text = "" + tetrahedron.NumSubDivisions;
+        subdivisionText.text = "" + tetrahedron.NumIterations;
     }
 }

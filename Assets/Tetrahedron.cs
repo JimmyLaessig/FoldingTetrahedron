@@ -68,12 +68,10 @@ public class Tetrahedron
             var s = (p0 + p1 + p2) / 3f;
             var p3 = new Vector3(s.x, tetrahedronHeight, s.z);
             s = (p0 + p1 + p2 + p3) / 4f;
-            //p0 -= s;
-            //p1 -= s;
-            //p2 -= s;
-            //p3 -= s;
 
             return new Tetrahedron(p0, p1, p2, p3);
         }
-    }      
+    } 
+    
+    
 }
