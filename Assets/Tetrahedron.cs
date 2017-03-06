@@ -51,21 +51,21 @@ public class Tetrahedron
     public Color[] Colors
     {
         get {
-            var green   = new Color(103, 255, 93);
-            var blue    = new Color(110, 189, 253);
-            var yellow  = new Color(242, 255, 90);
-            var red     = new Color(246, 73, 138);
+            var green   = new Color(103f /255f, 255f /255f, 93f / 255f);
+            var blue    = new Color(110f /255f, 189f /255f, 253f / 255f);
+            var yellow  = new Color(242f /255f, 255f /255f, 90f / 255f);
+            var red     = new Color(246f / 255f, 73f / 255f, 138f / 255f);
 
             return new Color[] 
                 {            
                 // Bottom    
-                Color.yellow, Color.yellow, Color.yellow,
+                yellow, yellow, yellow,
                 // Front
-                Color.green, Color.green, Color.green,
+                green, green, green,
                 // Right
-                Color.red, Color.red, Color.red,
+                red, red, red,
                 // Left
-                Color.blue, Color.blue, Color.blue,
+                blue, blue, blue,
                 };
         }
     }
