@@ -3,8 +3,11 @@ Shader "Custom/TetrahedronFolding"
 {
 	Properties
 	{
-	_color("color", Color) = (1, 0, 0, 1)
-	_animatedColor("animatedColor", Color) = (0, 1, 0, 1)
+		_animatedColor("animatedColor", Color)	= (0.8, 0.8, 0.8, 1)
+		_animatedColor0("colorBottom", Color)	= (0, 1, 0, 1)
+		_animatedColor1("colorFront", Color)	= (0, 1, 0, 1)
+		_animatedColor2("colorRight", Color)	= (0, 1, 0, 1)
+		_animatedColor3("colorLeft", Color)		= (0, 1, 0, 1)
 	}
 	SubShader 
 	{
@@ -51,7 +54,7 @@ Shader "Custom/TetrahedronFolding"
 				// **************************************************************
 
 				// Vertex Shader ------------------------------------------------
-				GS_INPUT VS_Main(appdata_base v)
+				GS_INPUT VS_Main(appdata_full v)
 				{
 					GS_INPUT output = (GS_INPUT)0;
 					
@@ -61,20 +64,21 @@ Shader "Custom/TetrahedronFolding"
 					output.clipPos	= UnityObjectToClipPos(v.vertex);
 					output.localPos = v.vertex;
 					output.worldPos = float4(UnityObjectToWorldDir(v.vertex.xyz), 1);
+					output.color	= v.color;
 					return output;
 				}
-
 
 
 				uniform float cosPhi;
 				uniform float sinPhi; 
 				uniform float animationProgress;
-				uniform bool animationForward;
 
-				float4 _color;
+
+				float4 _animatedColor0;
+				float4 _animatedColor1;
+				float4 _animatedColor2;
+				float4 _animatedColor3;
 				float4 _animatedColor;
-
-				
 
 				// Geometry Shader -----------------------------------------------------
 				[maxvertexcount(18)]
@@ -82,7 +86,6 @@ Shader "Custom/TetrahedronFolding"
 				{
 					UNITY_SETUP_INSTANCE_ID (input[0]);
 					
-
 					float3 p00 = input[0].localPos.xyz;
 					float3 p11 = input[1].localPos.xyz;
 					float3 p22 = input[2].localPos.xyz;
@@ -93,13 +96,14 @@ Shader "Custom/TetrahedronFolding"
 
 					float3 s = (p00 + p11 + p22) / 3.0f;					
 
+					float4 color = input[0].color;
 
 					FS_INPUT output	= (FS_INPUT)0;
 					UNITY_TRANSFER_INSTANCE_ID (input[0], output);
 
 					// Normal and color for outer faces (static)
 					output.normal		= UnityObjectToWorldNormal(CalculateNormal(p00, p11, p22));
-					output.color		= _color;	
+					output.color		= color;	
 
 
 					// Face 1					
@@ -133,7 +137,7 @@ Shader "Custom/TetrahedronFolding"
 					// Inner faces(Animated)	
 					float delay		= 0.2;
 					float i			= ( animationProgress < delay) ? 0 : ( animationProgress - delay)/ (1-delay);
-					output.color	=  lerp(_color, _animatedColor, i);
+					output.color	=  lerp(color, _animatedColor, i);
 
 					// Face 1		
 					float3 p0_out	= p01;

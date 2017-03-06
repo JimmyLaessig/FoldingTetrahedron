@@ -7,13 +7,13 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
 
-        private Camera camera;
+        private new Camera camera;
 
         Vector2 lastMousePos;
        
 
-        public float MoveSpeed      = 10.0f;
-        public float RotationSpeed  = 0.01f;
+        public float MoveSpeed      = 5.0f;
+        public float RotationSpeed  = 90f;
 
         private Vector3 rotation;
         private Vector3 position;
@@ -21,7 +21,6 @@ public class CameraController : MonoBehaviour
 
 
         private Vector3 translationForce   = Vector3.zero;
-        private Vector3 rotationForce      = Vector3.zero;
 
 
         void Start()
@@ -37,41 +36,34 @@ public class CameraController : MonoBehaviour
         {
            
             
-            var mousePosX   = new Vector2(Input.mousePosition.x / (float)Screen.width, Input.mousePosition.y / (float)Screen.height);
-
-                var delta = mousePosX - lastMousePos;
             
-                translationForce += ControlWASD();
-                translationForce += ControlPan(delta);
+                
+            translationForce += ControlWASD();
+            translationForce += ControlPan();
 
                 
-                translationForce = Vector3.ClampMagnitude(translationForce, 1);
+            translationForce = Vector3.ClampMagnitude(translationForce, 1);
                 
-                camera.transform.position += (translationForce * MoveSpeed);
+            camera.transform.position += (translationForce * MoveSpeed);
 
 
 
-                rotation += ControlRotation(delta) * RotationSpeed;
+            ControlRotation();
                 //rotation = rotation.ClampCircular(glm.Radians(85.0), 0, 0);
-                rotation = normalizeAngles(rotation);
+                //rotation = normalizeAngles(rotation);
                 //var x = camera.transform.rotation.eulerAngles;
-                camera.transform.rotation = Quaternion.Euler(rotation);
+                //camera.transform.rotation = Quaternion.Euler(rotation);
                 
-                rotationForce       /= 1.1f;
-                translationForce    /= 1.1f;
-
-                if (rotationForce.magnitude <= 0.0001) rotationForce = Vector3.zero;               
-                if (translationForce.magnitude <= 0.0001) translationForce = Vector3.zero;
-            
-
-            
-            lastMousePos = mousePosX;                    
+                
+            translationForce    /= 1.1f;                      
+            if (translationForce.magnitude <= 0.0001) translationForce = Vector3.zero;            
+                           
         }
 
 
 
         private float translationForceFactor = 0.1f;
-        private float rotationForceFactor = 1.0f;
+
         
 
         /// <summary>
@@ -93,10 +85,10 @@ public class CameraController : MonoBehaviour
         }
 
 
-        private Vector3 ControlPan(Vector2 deltaPos)
+        private Vector3 ControlPan()
         {
 
-            var relativeForce = translationForceFactor * deltaPos;
+            var relativeForce = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * translationForceFactor * 0.1f;
             
             Vector3 force = Vector3.zero;
 
@@ -109,24 +101,15 @@ public class CameraController : MonoBehaviour
         }
 
 
-        private Vector3 ControlRotation(Vector2 deltaPos)
+        private void ControlRotation()
         {
-
-            var x  = Input.GetAxis("Mouse X");
-            var y = Input.GetAxis("Mouse Y");
-            //var relativeForce =  * deltaPos;
-
-            Vector3 force = Vector3.zero;
             if (Input.GetMouseButton(1))
             {
-                Debug.Log("asdasd");
-                //force.x += x * rotationForceFactor;
-                force.y += y * rotationForceFactor;
-                force.z += 0;         
-            }
-
-            return force;
+                this.transform.Rotate(Vector3.right, -Input.GetAxis("Mouse Y") * 90 * Time.deltaTime);
+                this.transform.Rotate(Vector3.up, Input.GetAxis("Mouse X") * 90 * Time.deltaTime, Space.World);
+            }         
         }
+
 
         private Vector3 normalizeAngles(Vector3 angles)
         {

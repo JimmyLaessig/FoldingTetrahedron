@@ -73,7 +73,7 @@ public class SierpinskiTetrahedron : MonoBehaviour
         mesh = new Mesh();
         mesh.vertices   = tetrahedron.Vertices;
         mesh.triangles  = tetrahedron.Indices;
-
+        mesh.colors     = tetrahedron.Colors;
 
         float h = Mathf.Sqrt(3f) * (1f / 2f);            
         var p0 = new Vector3( 0.5f, 0.0f,-h );
