@@ -12,7 +12,7 @@ public class Tetrahedron
     public Color colorBottom;    
     public Color colorFront ;    
     public Color colorLeft  ;
-    public Color colorRight;       
+    public Color colorRight ;       
 
 
     public Vector3 p0, p1, p2, p3;
@@ -70,8 +70,9 @@ public class Tetrahedron
     /// </summary>
     public Color[] Colors
     {
-        get {
-            return new Color[] 
+        get
+        {
+            return new Color[]
                 {            
                 // Bottom    
                 colorBottom, colorBottom, colorBottom,
@@ -81,7 +82,7 @@ public class Tetrahedron
                 colorLeft, colorLeft, colorLeft,
                 // Right
                 colorRight, colorRight, colorRight,
-                };
+        };
         }
     }
 
