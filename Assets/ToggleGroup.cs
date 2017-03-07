@@ -19,7 +19,7 @@ public class ToggleGroup : MonoBehaviour {
     public ToggleGroupEvent onToggleChanged;
 
 
-    // Use this for initialization
+    
     void Start()
     {
         toggles.ForEach(t => t.isOn = false);
@@ -29,10 +29,13 @@ public class ToggleGroup : MonoBehaviour {
 
         currentOption.isOn = true;
         currentOption.interactable = false;
-       // currentOption.onValueChanged.
     }
 
 
+    /// <summary>
+    /// Updates the Toggle group and fires change-events to all subscribers, if changes occur
+    /// (Called by Unity internally)
+    /// </summary>
     void Update()
     {      
         var newOption = toggles.Find(t => t.isOn && t.interactable);

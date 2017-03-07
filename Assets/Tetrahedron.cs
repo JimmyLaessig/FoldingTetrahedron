@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-
+/// <summary>
+/// Ecapsualtes the geometric information of an tetrahedron
+/// </summary>
 public class Tetrahedron
 {
     public Color colorBottom;    
@@ -15,6 +17,9 @@ public class Tetrahedron
 
     public Vector3 p0, p1, p2, p3;
 
+    /// <summary>
+    /// Creates a new tetrahedron with the points p0, p1, p2 as base points and p3 as top
+    /// </summary>
     public Tetrahedron(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
     {
         this.p0 = p0;
@@ -23,18 +28,26 @@ public class Tetrahedron
         this.p3 = p3;
     }
 
+    /// <summary>
+    /// Returns the length of edges of the tetrahedron
+    /// </summary>
     public float Length
     {
         get { return (p1 - p0).magnitude; }
     }
 
-
-    public Vector3 s
+    /// <summary>
+    /// Returns the center point of the tetrahedron
+    /// </summary>
+    public Vector3 Center
     {
         get { return (p0 + p1 + p2 + p3) / 4.0f; }
     }
 
 
+    /// <summary>
+    /// Returns a list of vertices used for rendering. 
+    /// </summary>
     public Vector3[] Vertices
     {
         get
@@ -52,7 +65,9 @@ public class Tetrahedron
         }
     }
 
-
+    /// <summary>
+    /// Returns a list of colors used for rendering
+    /// </summary>
     public Color[] Colors
     {
         get {
@@ -70,12 +85,18 @@ public class Tetrahedron
         }
     }
 
-
+    /// <summary>
+    /// Returns a list of indices, indicating the triangles in Vertices and Colors
+    /// </summary>
     public int[] Indices
     {
         get{ return new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }; }
     }
     
+
+    /// <summary>
+    /// Creates a unit tetrahedron, whose lower left point is located at (0, 0, 0) with an edge length of 1
+    /// </summary>
     
     public static Tetrahedron Unit
     {

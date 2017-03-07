@@ -18,6 +18,7 @@ Shader "Custom/TriangleFolding"
 				#include "UnityLightingCommon.cginc"
 				#include "fun.cginc"
 
+
 				// **************************************************************
 				// Data structures												*
 				// **************************************************************
@@ -27,17 +28,19 @@ Shader "Custom/TriangleFolding"
 					float4 localPos	: TEXCOORD0;
 					float4 worldPos	: TEXCOORD1;
 					float4 color	: COLOR;
-					//UNITY_VERTEX_INPUT_INSTANCE_ID
+					UNITY_VERTEX_INPUT_INSTANCE_ID
 				};
 
 				struct FS_INPUT
 				{
+					UNITY_VERTEX_INPUT_INSTANCE_ID
 					float4 clipPos	: SV_POSITION;
 					float3 normal	: NORMAL;
 					float4 color	: COLOR;
 					bool isFrontFace: SV_IsFrontFace;
-					//UNITY_VERTEX_INPUT_INSTANCE_ID
+					
 				};
+				
 
 
 				// **************************************************************

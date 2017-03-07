@@ -71,7 +71,7 @@ Shader "Custom/TetrahedronFolding"
 				uniform float4 colorLeft;
 				uniform float4 colorRight;
 
-				
+				// Returns the correct colors for the new created triangles based on the faces current color
 				void GetAnimatedColors(in float4 currentColor, out float4 animatedColor0, out float4 animatedColor1, out float4 animatedColor2)
 				{
 					// Yellow => bottom
@@ -134,16 +134,15 @@ Shader "Custom/TetrahedronFolding"
 					// **************************************************************
 					// Static Faces													*
 					// **************************************************************
-					float4 color = input[0].color;			
-					float3 normal		= UnityObjectToWorldNormal(CalculateNormal(p00, p11, p22));
+					float4 color	= input[0].color;			
+					float3 normal	= UnityObjectToWorldNormal(CalculateNormal(p00, p11, p22));
 
 					// Face 1
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p00 ), normal, color));
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p01 ), normal, color));			
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p20 ), normal, color));	
 					vertices.RestartStrip();	
-		   
-														   
+		   														   
 					// Face 2	
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p01 ), normal, color));
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p11 ), normal, color));			
@@ -156,6 +155,7 @@ Shader "Custom/TetrahedronFolding"
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p22 ), normal, color));	
 					vertices.RestartStrip();
 			   
+
 					// **************************************************************
 					// Animated Faces												*
 					// **************************************************************		
@@ -165,7 +165,6 @@ Shader "Custom/TetrahedronFolding"
 					float i			= ( animationProgress < delay) ? 0 : ( animationProgress - delay)/ (1-delay);
 					float4 animatedColor0, animatedColor1, animatedColor2;
 					GetAnimatedColors(color, animatedColor0, animatedColor1, animatedColor2);
-					
 					
 
 					// Face 0	

@@ -5,6 +5,9 @@ using System.Linq;
 public static class Extensions  {
 
 
+    /// <summary>
+    /// Splits the collection int the given number of chunks. 
+    /// </summary>
     public static IEnumerable<IEnumerable<T>> Split<T>(this ICollection<T> self, int chunkSize)
     {
         var splitList = new List<IEnumerable<T>>();
