@@ -15,18 +15,19 @@ public class SierpinskiTetrahedron : MonoBehaviour
     [SerializeField]
     private float animationSpeed = 1.0f;
 
+    public Color colorBottom    = new Color(242f / 255f, 255f / 255f, 90f / 255f);
+    public Color colorFront     = new Color(103f / 255f, 255f / 255f, 93f / 255f);
+    public Color colorLeft      = new Color(110f / 255f, 189f / 255f, 253f / 255f);    
+    public Color colorRight     = new Color(246f / 255f, 73f / 255f, 138f / 255f);
+
 
     private Tetrahedron tetrahedron;
     private Mesh mesh;
     private Mesh triangle;
 
 
-    private List<Vector3> instances             = new List<Vector3>();
-    private List<Matrix4x4> instanceMatrices    = new List<Matrix4x4>();
-    private float scale                         = 1;
-    private int numIterations                   = 0;
-
-
+    [SerializeField]
+    private bool lightingEnabled;
     [SerializeField]
     private bool drawInstanced;
     [SerializeField]
@@ -34,12 +35,16 @@ public class SierpinskiTetrahedron : MonoBehaviour
     [SerializeField]
     private Material triangleFoldingMaterial;
 
+    // Animation
     [SerializeField]
-    private int maxIterations = 3;
-
+    private int maxIterations = 5;
     private float animationProgress = 0.0f;
-
     private AnimationState state    = AnimationState.PAUSED;
+
+    private List<Vector3> instances = new List<Vector3>();
+    private List<Matrix4x4> instanceMatrices = new List<Matrix4x4>();
+    private float scale = 1;
+    private int numIterations = 0;
 
 
     public bool DrawInstanced
@@ -68,6 +73,10 @@ public class SierpinskiTetrahedron : MonoBehaviour
         
 
         tetrahedron = Tetrahedron.Unit;
+        tetrahedron.colorBottom = colorBottom;
+        tetrahedron.colorFront  = colorFront;
+        tetrahedron.colorLeft   = colorLeft;
+        tetrahedron.colorRight  = colorRight;
         instances.Add(Vector3.zero);
 
         mesh = new Mesh();
@@ -188,6 +197,18 @@ public class SierpinskiTetrahedron : MonoBehaviour
         }
     }
 
+    public bool LightingEnabled
+    {
+        get
+        {
+            return lightingEnabled;
+        }
+
+        set
+        {
+            lightingEnabled = value;
+        }
+    }
 
     private void UpdateAnimation()
     {
@@ -248,6 +269,14 @@ public class SierpinskiTetrahedron : MonoBehaviour
             triangleFoldingMaterial.SetFloat("cosPhi", Mathf.Cos(angle));
             triangleFoldingMaterial.SetFloat("sinPhi", Mathf.Sin(angle));
             triangleFoldingMaterial.SetFloat("animationProgress", animationProgress);
+            triangleFoldingMaterial.SetInt("lightingEnabled", lightingEnabled ? 1: 0);
+
+            triangleFoldingMaterial.SetColor("colorBottom"  , tetrahedron.colorBottom);
+            triangleFoldingMaterial.SetColor("colorFront"   , tetrahedron.colorFront);
+            triangleFoldingMaterial.SetColor("colorLeft"    , tetrahedron.colorLeft);
+            triangleFoldingMaterial.SetColor("colorRight"   , tetrahedron.colorRight);
+
+
             var matrix = Matrix4x4.TRS(Vector3.zero - tetrahedron.s, Quaternion.identity, Vector3.one);
             Graphics.DrawMesh(triangle, this.transform.localToWorldMatrix * matrix, triangleFoldingMaterial, 0);
         }
@@ -258,7 +287,13 @@ public class SierpinskiTetrahedron : MonoBehaviour
             tetrahedronFoldingMaterial.SetFloat("cosPhi", Mathf.Cos(angle));
             tetrahedronFoldingMaterial.SetFloat("sinPhi", Mathf.Sin(angle));
             tetrahedronFoldingMaterial.SetFloat("animationProgress", animationProgress);
+            tetrahedronFoldingMaterial.SetInt("lightingEnabled", lightingEnabled ? 1 : 0);
 
+
+            tetrahedronFoldingMaterial.SetColor("colorBottom", tetrahedron.colorBottom);
+            tetrahedronFoldingMaterial.SetColor("colorFront", tetrahedron.colorFront);
+            tetrahedronFoldingMaterial.SetColor("colorLeft", tetrahedron.colorLeft);
+            tetrahedronFoldingMaterial.SetColor("colorRight", tetrahedron.colorRight);
 
             // Draw Tetrahedrons
             var matrices = instanceMatrices.ConvertAll(m => this.transform.localToWorldMatrix * m);

@@ -7,6 +7,11 @@ using UnityEngine;
 
 public class Tetrahedron
 {
+    public Color colorBottom;    
+    public Color colorFront ;    
+    public Color colorLeft  ;
+    public Color colorRight;       
+
 
     public Vector3 p0, p1, p2, p3;
 
@@ -36,13 +41,13 @@ public class Tetrahedron
         {
             return new Vector3[] { 
                     // Bottom
-                    p0, p1, p2, 
+                    p2, p0, p1, 
                     // Front
                     p3, p1, p0, 
-                    // Right
-                    p3, p2, p1,
                     // Left
                     p3, p0, p2,
+                    // Right
+                    p3, p2, p1,                   
                     };
         }
     }
@@ -51,21 +56,16 @@ public class Tetrahedron
     public Color[] Colors
     {
         get {
-            var green   = new Color(103, 255, 93);
-            var blue    = new Color(110, 189, 253);
-            var yellow  = new Color(242, 255, 90);
-            var red     = new Color(246, 73, 138);
-
             return new Color[] 
                 {            
                 // Bottom    
-                Color.yellow, Color.yellow, Color.yellow,
+                colorBottom, colorBottom, colorBottom,
                 // Front
-                Color.green, Color.green, Color.green,
-                // Right
-                Color.red, Color.red, Color.red,
+                colorFront, colorFront, colorFront,
                 // Left
-                Color.blue, Color.blue, Color.blue,
+                colorLeft, colorLeft, colorLeft,
+                // Right
+                colorRight, colorRight, colorRight,
                 };
         }
     }

@@ -9,62 +9,43 @@ public class CameraController : MonoBehaviour
 
         private new Camera camera;
 
-        Vector2 lastMousePos;
-       
+        private Vector2 lastPos;
 
         public float MoveSpeed      = 5.0f;
-        public float RotationSpeed  = 90f;
-
-        private Vector3 rotation;
-        private Vector3 position;
-
+        public float RotationSpeed  = 90.0f;
 
 
         private Vector3 translationForce   = Vector3.zero;
-
+        private float translationForceFactor = 0.1f;
 
         void Start()
         {
-            camera          = this.gameObject.GetComponent<Camera>();
-            this.rotation = camera.transform.rotation.eulerAngles;
-            this.position = camera.transform.position;
-        }
-       
-        
+            camera  = this.gameObject.GetComponent<Camera>();
+            lastPos = new Vector2(Input.mousePosition.x / (float)Screen.width, Input.mousePosition.y / (float)Screen.height);
+    }
+              
 
         void Update()
         {
-           
-            
-            
-                
+            Vector2 currentPos = new Vector2(Input.mousePosition.x / (float)Screen.width, Input.mousePosition.y / (float)Screen.height);
+            Vector2 deltaPos = currentPos - lastPos;
+            lastPos = currentPos;
             translationForce += ControlWASD();
-            translationForce += ControlPan();
+            translationForce += ControlPan(deltaPos);
 
                 
             translationForce = Vector3.ClampMagnitude(translationForce, 1);
                 
             camera.transform.position += (translationForce * MoveSpeed);
 
-
-
-            ControlRotation();
-                //rotation = rotation.ClampCircular(glm.Radians(85.0), 0, 0);
-                //rotation = normalizeAngles(rotation);
-                //var x = camera.transform.rotation.eulerAngles;
-                //camera.transform.rotation = Quaternion.Euler(rotation);
+            ControlRotation(deltaPos);
                 
                 
-            translationForce    /= 1.1f;                      
+            translationForce    /= (1 + 10 * Time.deltaTime);                      
             if (translationForce.magnitude <= 0.0001) translationForce = Vector3.zero;            
                            
         }
-
-
-
-        private float translationForceFactor = 0.1f;
-
-        
+     
 
         /// <summary>
         /// Returns the acceleration vector from WASD input
@@ -85,10 +66,10 @@ public class CameraController : MonoBehaviour
         }
 
 
-        private Vector3 ControlPan()
+        private Vector3 ControlPan(Vector2 deltaPos)
         {
 
-            var relativeForce = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * translationForceFactor * 0.1f;
+            var relativeForce = deltaPos * translationForceFactor;
             
             Vector3 force = Vector3.zero;
 
@@ -101,12 +82,13 @@ public class CameraController : MonoBehaviour
         }
 
 
-        private void ControlRotation()
+        private void ControlRotation(Vector2 deltaPos)
         {
             if (Input.GetMouseButton(1))
             {
-                this.transform.Rotate(Vector3.right, -Input.GetAxis("Mouse Y") * 90 * Time.deltaTime);
-                this.transform.Rotate(Vector3.up, Input.GetAxis("Mouse X") * 90 * Time.deltaTime, Space.World);
+                Debug.Log(deltaPos);
+                this.transform.Rotate(Vector3.right, -deltaPos.y * RotationSpeed);
+                this.transform.Rotate(Vector3.up, deltaPos.x * RotationSpeed, Space.World);
             }         
         }
 

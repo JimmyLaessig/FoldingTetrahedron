@@ -1,14 +1,6 @@
 ﻿
 Shader "Custom/TetrahedronFolding" 
 {
-	Properties
-	{
-		_animatedColor("animatedColor", Color)	= (0.8, 0.8, 0.8, 1)
-		_animatedColor0("colorBottom", Color)	= (0, 1, 0, 1)
-		_animatedColor1("colorFront", Color)	= (0, 1, 0, 1)
-		_animatedColor2("colorRight", Color)	= (0, 1, 0, 1)
-		_animatedColor3("colorLeft", Color)		= (0, 1, 0, 1)
-	}
 	SubShader 
 	{
 		Pass
@@ -73,12 +65,55 @@ Shader "Custom/TetrahedronFolding"
 				uniform float sinPhi; 
 				uniform float animationProgress;
 
+				
+				uniform float4 colorBottom;
+				uniform float4 colorFront;
+				uniform float4 colorLeft;
+				uniform float4 colorRight;
 
-				float4 _animatedColor0;
-				float4 _animatedColor1;
-				float4 _animatedColor2;
-				float4 _animatedColor3;
-				float4 _animatedColor;
+				
+				void GetAnimatedColors(in float4 currentColor, out float4 animatedColor0, out float4 animatedColor1, out float4 animatedColor2)
+				{
+					// Yellow => bottom
+					if(Equals(currentColor, colorBottom))
+					{
+						animatedColor0 = colorLeft;
+						animatedColor1 = colorRight;
+						animatedColor2 = colorFront;
+					}
+					// Green => Front
+					else if(Equals(currentColor, colorFront))
+					{
+						animatedColor0 = colorRight;
+						animatedColor1 = colorLeft;
+						animatedColor2 = colorBottom;
+					}
+					// Red => Right
+					else if(Equals(currentColor, colorRight))
+					{
+						animatedColor0 = colorLeft;
+						animatedColor1 = colorFront;
+						animatedColor2 = colorBottom;
+					}
+					// Blue => Left
+					else if(Equals(currentColor, colorLeft))
+					{
+						animatedColor0 = colorFront;
+						animatedColor1 = colorRight;
+						animatedColor2 = colorBottom;
+					}
+				}
+
+
+				FS_INPUT CreateVertex(float4 clipPos, float3 normal, float4 color)
+				{
+					FS_INPUT vertex	= (FS_INPUT)0;
+					vertex.clipPos	= clipPos; 
+					vertex.normal	= normal; 
+					vertex.color	= color;
+					return vertex;
+				}
+
 
 				// Geometry Shader -----------------------------------------------------
 				[maxvertexcount(18)]
@@ -96,107 +131,97 @@ Shader "Custom/TetrahedronFolding"
 
 					float3 s = (p00 + p11 + p22) / 3.0f;					
 
-					float4 color = input[0].color;
+					// **************************************************************
+					// Static Faces													*
+					// **************************************************************
+					float4 color = input[0].color;			
+					float3 normal		= UnityObjectToWorldNormal(CalculateNormal(p00, p11, p22));
 
-					FS_INPUT output	= (FS_INPUT)0;
-					UNITY_TRANSFER_INSTANCE_ID (input[0], output);
-
-					// Normal and color for outer faces (static)
-					output.normal		= UnityObjectToWorldNormal(CalculateNormal(p00, p11, p22));
-					output.color		= color;	
-
-
-					// Face 1					
-					output.clipPos = UnityObjectToClipPos( p00 );											
-					vertices.Append(output);	   
-					output.clipPos = UnityObjectToClipPos( p01 );			
-					vertices.Append(output);				 	
-					output.clipPos = UnityObjectToClipPos( p20 );					
-					vertices.Append(output);			   
-					vertices.RestartStrip();			   
+					// Face 1
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p00 ), normal, color));
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p01 ), normal, color));			
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p20 ), normal, color));	
+					vertices.RestartStrip();	
+		   
 														   
-					// Face 2							   
-					output.clipPos = UnityObjectToClipPos( p01 );					
-					vertices.Append(output);			   														   
-					output.clipPos = UnityObjectToClipPos( p11 );									   
-					vertices.Append(output);			   									   
-					output.clipPos = UnityObjectToClipPos( p12 );			
-					vertices.Append(output);
-					vertices.RestartStrip();
+					// Face 2	
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p01 ), normal, color));
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p11 ), normal, color));			
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p12 ), normal, color));	
+					vertices.RestartStrip();		
 
 					// Face 3
-					output.clipPos = UnityObjectToClipPos( p20 );					
-					vertices.Append(output);			   											   
-					output.clipPos = UnityObjectToClipPos( p12 );
-					vertices.Append(output);			   														   
-					output.clipPos = UnityObjectToClipPos( p22 );		
-					vertices.Append(output);			   
-					vertices.RestartStrip();			   
-								
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p20 ), normal, color));
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p12 ), normal, color));			
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p22 ), normal, color));	
+					vertices.RestartStrip();
+			   
+					// **************************************************************
+					// Animated Faces												*
+					// **************************************************************		
+					float3 p0_out, p1_out, p2_out, n_out;
 														   
-					// Inner faces(Animated)	
 					float delay		= 0.2;
 					float i			= ( animationProgress < delay) ? 0 : ( animationProgress - delay)/ (1-delay);
-					output.color	=  lerp(color, _animatedColor, i);
+					float4 animatedColor0, animatedColor1, animatedColor2;
+					GetAnimatedColors(color, animatedColor0, animatedColor1, animatedColor2);
+					
+					
 
-					// Face 1		
-					float3 p0_out	= p01;
-					float3 p1_out	= p12;
-					float3 p2_out	= RotateAround(p01, p12, s, cosPhi, sinPhi);
-					float3 n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));					
-								
-					output.normal = n_out;																						   
-					output.clipPos = UnityObjectToClipPos( p0_out );	
-					vertices.Append(output);
-					output.clipPos = UnityObjectToClipPos( p1_out );	
-					vertices.Append(output);
-					output.clipPos = UnityObjectToClipPos( p2_out );				
-					vertices.Append(output);	
+					// Face 0	
+					p0_out	= RotateAround(p12, p20, s, cosPhi, sinPhi);;
+					p1_out	= p12;
+					p2_out	= p20;
+					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));
+					color	=  lerp(color, animatedColor0, animationProgress);
+
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p0_out ), n_out, color));
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p1_out ), n_out, color));			
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p2_out ), n_out, color));	
 					vertices.RestartStrip();	
+
+				
+					// Face 1		
+					p0_out	= p01;
+					p1_out	= p12;
+					p2_out	= RotateAround(p01, p12, s, cosPhi, sinPhi);
+					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));					
+					color	=  lerp(color, animatedColor1, animationProgress);
+
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p0_out ), n_out, color));
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p1_out ), n_out, color));			
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p2_out ), n_out, color));	
+					vertices.RestartStrip();
 
 
 					// Face 2
 					p0_out	= p01;
 					p1_out	= RotateAround(p20, p01, s, cosPhi, sinPhi);
 					p2_out	= p20;
-					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));
+					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));	
+					color	=  lerp(color, animatedColor2, animationProgress);
 
-					output.normal = n_out;		
-					output.clipPos = UnityObjectToClipPos( p0_out  );	
-					vertices.Append(output);
-					output.clipPos = UnityObjectToClipPos( p1_out  );	
-					vertices.Append(output);				
-					output.clipPos = UnityObjectToClipPos( p2_out  );				
-					vertices.Append(output);	
-					vertices.RestartStrip();	
-					
-					// Face3	
-					p0_out	= RotateAround(p12, p20, s, cosPhi, sinPhi);;
-					p1_out	= p12;
-					p2_out	= p20;
-					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));
-
-			
-					output.normal = n_out;													   
-					output.clipPos = UnityObjectToClipPos( p0_out  );	
-					vertices.Append(output);
-					output.clipPos = UnityObjectToClipPos( p1_out  );	
-					vertices.Append(output);
-					output.clipPos = UnityObjectToClipPos( p2_out  );				
-					vertices.Append(output);					
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p0_out ), n_out, color));
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p1_out ), n_out, color));			
+					vertices.Append(CreateVertex(UnityObjectToClipPos( p2_out ), n_out, color));	
+					vertices.RestartStrip();
+						
 				}
 
-				
+				uniform bool lightingEnabled;
 
 				// Fragment Shader -----------------------------------------------
 				float4 FS_Main(FS_INPUT input) : SV_Target
 				{
-					UNITY_SETUP_INSTANCE_ID (input);
 					
-					float3 n = (input.isFrontFace) ? input.normal : -input.normal;
-					//float3 n = input.normal;
-					half nl = max(0, dot(n, _WorldSpaceLightPos0.xyz));										
-					return input.color * nl * _LightColor0;
+					if(lightingEnabled)
+					{
+						float3 n = (input.isFrontFace) ? input.normal : -input.normal;
+						half nl = max(0, dot(n, _WorldSpaceLightPos0.xyz));										
+						return input.color * nl * _LightColor0;
+					}
+					
+					return input.color;				
 				}
 
 			ENDCG

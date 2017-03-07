@@ -1,4 +1,9 @@
-﻿
+﻿bool Equals(float4 a, float4 b)
+{
+    return (a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w);
+}
+
+
 float3 RotateAround(float3 axisPoint0, float3 axisPoint1, float3 p, float cosPhi, float sinPhi)
 				{
 					float3 pointOnAxis		= (axisPoint0 + axisPoint1) /2;

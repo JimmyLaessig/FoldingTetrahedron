@@ -1,13 +1,7 @@
 ﻿
 Shader "Custom/TriangleFolding" 
 {
-	Properties
-	{
-	_animatedColor0("colorBottom", Color)	= (0, 1, 0, 1)
-	_animatedColor1("colorFront", Color)	= (0, 1, 0, 1)
-	_animatedColor2("colorRight", Color)	= (0, 1, 0, 1)
-	_animatedColor3("colorLeft", Color)		= (0, 1, 0, 1)
-	}
+
 	SubShader 
 	{
 		Pass
@@ -61,20 +55,15 @@ Shader "Custom/TriangleFolding"
 					return output;
 				}
 
-
-
 				uniform float cosPhi;
 				uniform float sinPhi; 
 				uniform float animationProgress;
 
 
-				float4 _color;
-				float4 _animatedColor;
-
-				float4 _animatedColor0;
-				float4 _animatedColor1;
-				float4 _animatedColor2;
-				float4 _animatedColor3;
+				uniform float4 colorBottom;
+				uniform float4 colorFront;
+				uniform float4 colorLeft;
+				uniform float4 colorRight;
 
 
 				// Geometry Shader -----------------------------------------------------
@@ -102,7 +91,7 @@ Shader "Custom/TriangleFolding"
 
 					// Normal and color for outer faces (static)
 					output.normal		= n_out;
-					output.color		= _animatedColor0;
+					output.color		= colorBottom;
 						
 					// Inner face					
 					output.clipPos = UnityObjectToClipPos( p0_out );											
@@ -119,8 +108,9 @@ Shader "Custom/TriangleFolding"
 					p2_out	= RotateAround(p01, p20, p00, cosPhi, sinPhi);
 					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));	
 					
+
 					output.normal = n_out;	
-					output.color = lerp(_animatedColor0,_animatedColor2, animationProgress);				   						   
+					output.color = lerp(colorBottom, colorRight, animationProgress);				   						   
 					output.clipPos = UnityObjectToClipPos( p0_out );											
 					vertices.Append(output);	   
 					output.clipPos = UnityObjectToClipPos( p1_out );			
@@ -137,7 +127,7 @@ Shader "Custom/TriangleFolding"
 					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));	
 							
 					output.normal = n_out;	
-					output.color = lerp(_animatedColor0,  _animatedColor3, animationProgress);						   						   
+					output.color = lerp(colorBottom, colorLeft, animationProgress);						   						   
 					output.clipPos = UnityObjectToClipPos( p0_out );											
 					vertices.Append(output);	   
 					output.clipPos = UnityObjectToClipPos( p1_out );			
@@ -154,7 +144,7 @@ Shader "Custom/TriangleFolding"
 					n_out	= UnityObjectToWorldNormal(CalculateNormal(p0_out, p1_out, p2_out));	
 							
 					output.normal = n_out;	
-					output.color = lerp(_animatedColor0,_animatedColor1, animationProgress);					   						   
+					output.color = lerp(colorBottom, colorFront, animationProgress);					   						   
 					output.clipPos = UnityObjectToClipPos( p0_out );											
 					vertices.Append(output);	   
 					output.clipPos = UnityObjectToClipPos( p1_out );			
@@ -166,12 +156,20 @@ Shader "Custom/TriangleFolding"
 
 				
 
+				uniform bool lightingEnabled;
+
 				// Fragment Shader -----------------------------------------------
 				float4 FS_Main(FS_INPUT input) : SV_Target
 				{
-					float3 n = (input.isFrontFace) ? input.normal : -input.normal;
-					half nl = max(0, dot(n, _WorldSpaceLightPos0.xyz));										
-					return input.color * nl * _LightColor0;
+					
+					if(lightingEnabled)
+					{
+						float3 n = (input.isFrontFace) ? input.normal : -input.normal;
+						half nl = max(0, dot(n, _WorldSpaceLightPos0.xyz));										
+						return input.color * nl * _LightColor0;
+					}
+					
+					return input.color;				
 				}
 			ENDCG
 		}
