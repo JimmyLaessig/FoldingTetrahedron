@@ -7,7 +7,7 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
 
-    private new Camera camera;
+    new Camera camera;
     private Vector2 lastPos;
 
     public float MoveSpeed = 5.0f;

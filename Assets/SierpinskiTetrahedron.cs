@@ -109,7 +109,7 @@ public class SierpinskiTetrahedron : MonoBehaviour
     /// </summary>
     private List<Matrix4x4> instanceMatrices = new List<Matrix4x4>();
 
-
+    private Light directionalLight;
 
     /// <summary>
     /// Determines if instanced drawing should be used
@@ -212,7 +212,8 @@ public class SierpinskiTetrahedron : MonoBehaviour
 
         // Let camera look at center
         Camera.main.transform.LookAt(Vector3.zero, Vector3.up);
-
+        // Get the light
+        directionalLight = GameObject.Find("Directional Light").GetComponent<Light>();
         // Initialize the number of iterations
         instances.Clear();
         instances.Add(Vector3.zero);
@@ -378,6 +379,9 @@ public class SierpinskiTetrahedron : MonoBehaviour
             triangleFoldingMaterial.SetFloat("sinPhi", Mathf.Sin(angle));
             triangleFoldingMaterial.SetFloat("animationProgress", animationProgress);
             triangleFoldingMaterial.SetInt("lightingEnabled", lightingEnabled ? 1: 0);
+            triangleFoldingMaterial.SetVector("lightDir", directionalLight.transform.forward);
+            triangleFoldingMaterial.SetColor("lightColor", directionalLight.color);
+
 
             triangleFoldingMaterial.SetColor("colorBottom"  , tetrahedron.colorBottom);
             triangleFoldingMaterial.SetColor("colorFront"   , tetrahedron.colorFront);
@@ -395,8 +399,10 @@ public class SierpinskiTetrahedron : MonoBehaviour
             tetrahedronFoldingMaterial.SetFloat("cosPhi", Mathf.Cos(angle));
             tetrahedronFoldingMaterial.SetFloat("sinPhi", Mathf.Sin(angle));
             tetrahedronFoldingMaterial.SetFloat("animationProgress", animationProgress);
-            tetrahedronFoldingMaterial.SetInt("lightingEnabled", lightingEnabled ? 1 : 0);
 
+            tetrahedronFoldingMaterial.SetInt("lightingEnabled", lightingEnabled ? 1 : 0);
+            tetrahedronFoldingMaterial.SetVector("lightDir", directionalLight.transform.forward);
+            tetrahedronFoldingMaterial.SetColor("lightColor", directionalLight.color);
 
             tetrahedronFoldingMaterial.SetColor("colorBottom", tetrahedron.colorBottom);
             tetrahedronFoldingMaterial.SetColor("colorFront", tetrahedron.colorFront);

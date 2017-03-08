@@ -18,6 +18,7 @@ Shader "Custom/TetrahedronFolding"
 				#include "UnityLightingCommon.cginc"
 				#include "fun.cginc"
 
+
 				// **************************************************************
 				// Data structures												*
 				// **************************************************************
@@ -35,9 +36,7 @@ Shader "Custom/TetrahedronFolding"
 					UNITY_VERTEX_INPUT_INSTANCE_ID
 					float4 clipPos	: SV_POSITION;
 					float3 normal	: NORMAL;
-					float4 color	: COLOR;
-					bool isFrontFace: SV_IsFrontFace;
-					
+					float4 color	: COLOR;					
 				};
 
 
@@ -203,21 +202,23 @@ Shader "Custom/TetrahedronFolding"
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p0_out ), n_out, color));
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p1_out ), n_out, color));			
 					vertices.Append(CreateVertex(UnityObjectToClipPos( p2_out ), n_out, color));	
-					vertices.RestartStrip();
+					//vertices.RestartStrip();
 						
 				}
 
 				uniform bool lightingEnabled;
+				uniform float3 lightDir;
+				uniform float4 lightColor;
 
 				// Fragment Shader -----------------------------------------------
-				float4 FS_Main(FS_INPUT input) : SV_Target
+				float4 FS_Main(FS_INPUT input, bool isFrontFace : SV_IsFrontFace) : SV_Target
 				{
 					
 					if(lightingEnabled)
 					{
-						float3 n = (input.isFrontFace) ? input.normal : -input.normal;
-						half nl = max(0, dot(n, _WorldSpaceLightPos0.xyz));										
-						return input.color * nl * _LightColor0;
+						float3 n = (isFrontFace) ? input.normal : -input.normal;
+						half nl = max(0, dot(n, -lightDir));										
+						return input.color * (nl + 0.2) * lightColor;
 					}
 					
 					return input.color;				
