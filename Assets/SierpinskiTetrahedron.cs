@@ -169,6 +169,17 @@ public class SierpinskiTetrahedron : MonoBehaviour
         }
     }
 
+    private int numDrawCalls = 0;
+
+
+    public int NumDrawCalls
+    {
+        get
+        {
+            return numDrawCalls;
+        }       
+    }
+
 
     /// <summary>
     /// Returns the current state of the animation
@@ -390,6 +401,7 @@ public class SierpinskiTetrahedron : MonoBehaviour
 
 
             var matrix = Matrix4x4.TRS(Vector3.zero - tetrahedron.Center, Quaternion.identity, Vector3.one);
+            numDrawCalls = 1;
             Graphics.DrawMesh(triangle, this.transform.localToWorldMatrix * matrix, triangleFoldingMaterial, 0);
         }
         else
@@ -415,10 +427,12 @@ public class SierpinskiTetrahedron : MonoBehaviour
             {
                 // Split list into chunks, since Instanced drawing has a limited number of instances
                 var chunks = matrices.Split(1023);
+                numDrawCalls = chunks.Count();
                 chunks.ToList().ForEach(m => Graphics.DrawMeshInstanced(mesh, 0, tetrahedronFoldingMaterial, m.ToArray(), m.Count()));
             }
             else
             {
+                numDrawCalls = matrices.Count();
                 matrices.ForEach(m => Graphics.DrawMesh(mesh, m, tetrahedronFoldingMaterial, 0));
             }
         }

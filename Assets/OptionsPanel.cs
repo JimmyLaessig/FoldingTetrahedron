@@ -12,7 +12,8 @@ public class OptionsPanel : MonoBehaviour {
     private Text subdivisionText;
 
     private SierpinskiTetrahedron tetrahedron;
-    
+
+    private Text drawCallsText;
     
     // Use this for initialization
     void Start ()
@@ -20,9 +21,10 @@ public class OptionsPanel : MonoBehaviour {
         tetrahedron     = GameObject.Find("SierpinskiTetrahedron").GetComponent<SierpinskiTetrahedron>();
         fpsText         = GameObject.Find("LabelFPS").GetComponent<Text>();
         subdivisionText = GameObject.Find("SubdivisionsText").GetComponent<Text>();
+        drawCallsText   = GameObject.Find("NumDrawCalls").GetComponent<Text>();
     }
 
-    float updateTimeStep = 1.0f;
+    float updateTimeStep = 0.5f;
 
 
     float counter = 1.0f;
@@ -40,6 +42,7 @@ public class OptionsPanel : MonoBehaviour {
         }
         counter += Time.smoothDeltaTime;
 
-        subdivisionText.text = "" + tetrahedron.NumIterations;
+        subdivisionText.text    = "" + tetrahedron.NumIterations;
+        drawCallsText.text      = "" + tetrahedron.NumDrawCalls;
     }
 }
